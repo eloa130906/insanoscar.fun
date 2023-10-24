@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insanos Car</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      html,
+      body {
+        height: 100%;
+        background: linear-gradient(#87ceeb, #e0f6ff);
+        overflow: hidden;
+      }
+      .container-home {
+        height: 100%;
+      }
+      .container-jogo {
+        display: flex;
+        justify-content: space-around;
+        height: 100%;
+      }
+      .row {
+        height: 100%;
+        position: relative;
+      }
+      .pista {
+        height: 100%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .carro {
+        width: 80px;
+        position: absolute;
+        top: 92%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .container-ganhador {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+      }
+      .card-ganhador {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        max-width: 600px;
+        text-align: center;
+        font-family: Arial, sans-serif;
+      }
+      .card-ganhador h1,h2 {
+        margin-bottom: 50px;
+      }
+      .amarelo {
+        color: #e0e52d;
+      }
+      .azul {
+        color: #1224e3;
+      }
+      .rosa {
+        color: #e209e6;
+      }
+      .vermelho {
+        color: #ff2828;
+      }
+
+
+      .container-home {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        padding: 100px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #121212;
+        overflow: hidden;
+      }
+      .circle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #58d5f5;
+        clip-path: circle(50% at bottom right);
+      }
+      header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 40px 100px;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: right;
+      }
+      .content {
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .content .text {
+        position: relative;
+        max-width: 600px;
+        margin-right: 20px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+      }
+      .content .text h2 {
+        color: #ffffff;
+        font-size: 3em;
+        margin-bottom: 2px;
+        line-height: 2.5em;
+        font-weight: 650;
+        margin-bottom: -50px;
+      }
+      .content .text p {
+        color: #fff;
+      }
+      .content .text a {
+        display: inline-block;
+        margin-top: 50px;
+        padding: 10px 15px;
+        background: #58d5f5;
+        color: #000000;
+        font-weight: 500;
+        letter-spacing: 1px;
+        text-decoration: none;
+        border-radius: 40px;
+        transition: 0.3s ease-in-out;
+      }
+      .content .text a:hover {
+        transform: translateY(-10px);
+      }
+      .boxImg {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        transform: scaleX(-1);
+        width: 680px;
+      }
+      .img5 {
+        border-radius: 40px;
+        width: 300px;
+      }
+      .h1-home {
+        font-family: "Playfair Display", serif;
+        font-size: 80px;
+        color: #ffffff;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 10px;
+      }
+      .img1 {
+        position: relative;
+        top: -260px;
+        right: 325px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- Home do Jogo -->
+    <div id="container-home" class="container-home">
+      <div class="circle"></div>
+      <header>
+        <h1 class="h1-home">Insanos Car</h1>
+      </header>
+
+      <div class="content">
+        <div class="text">
+          <br />
+          <br />
+          <h2>Código QR Code <br /></h2>
+          <a><img src="assets/image/qrcode-novo.png" alt="" class="img5" /></a>
+          <a href="#">Aponte a câmera do seu celular para jogar</a>
+        </div>
+      </div>
+
+      <div class="boxImg">
+        <img
+          src="assets/image/carro-home.png"
+          alt=""
+          class="img1"
+        />
+      </div>
+    </div>
+    
+    <!-- Tela do Jogo -->
+    <div id="container-jogo" class="container-jogo" style="display: none;"></div>
+    
+    <!-- Tela do Ganhador -->
+    <div id="container-ganhador" class="container-ganhador" style="display: none;">
+      <div class="card-ganhador">
+        <h1 id="ganhador"></h1>
+        <h2 id="texto-ganhador"></h3>
+        <span id="time-novo-jogo"></span>
+      </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+      const socket = io();
+
+      socket.on("connect", () => {
+        console.log('connect');
+        socket.emit('telaJogo', socket.id);
+      });
+
+      socket.on("jogadores", (jogadores) => {
+        if (jogadores.type == "remove") {
+          let removerJogador = document.getElementById(
+            `row-${jogadores.value}`
+          );
+          if (removerJogador) {
+            removerJogador.remove();
+          }
+        }
+
+        if (jogadores.type == "add") {
+          jogadores.value.forEach((jogador) => {
+            if (!document.getElementById(`row-${jogador[0]}`)) {
+              let novaRow = document.createElement("div");
+              novaRow.id = `row-${jogador[0]}`;
+              novaRow.className = "row";
+
+              let imagemPista = document.createElement("img");
+              imagemPista.id = `pista-${jogador[0]}`;
+              imagemPista.className = "pista";
+              imagemPista.src = "assets/image/pista.png";
+
+              let imagemCarro = document.createElement("img");
+              imagemCarro.id = `car-${jogador[0]}`;
+              imagemCarro.className = "carro";
+              imagemCarro.src = `assets/image/carro-${jogador[1].cor}.svg`;
+
+              novaRow.appendChild(imagemPista);
+              novaRow.appendChild(imagemCarro);
+
+              document.getElementById("container-jogo").appendChild(novaRow);
+            }
+          });
+        }
+      });
+
+      socket.on("posicao", (posicao) => {
+        document.getElementById(
+          `car-${posicao.jogador}`
+        ).style.top = `${posicao.value}%`;
+      });
+
+      socket.on("ganhador", (ganhador) => {
+        let corGanhador = document.getElementById('ganhador');
+        corGanhador.innerHTML = ganhador.jogador.cor.toUpperCase();
+        corGanhador.classList.add(ganhador.jogador.cor);
+
+        document.getElementById('texto-ganhador').innerHTML = `O carrinho ${ganhador.jogador.cor} é o grande vencedor da corrida. Parabéns ao piloto!`;
+        
+        let time = 5;
+        let timeNovoJogo = document.getElementById('time-novo-jogo');
+        timeNovoJogo.innerHTML = `Próxima corrida irá começar em ${time} segundos`;
+
+        setInterval(() => {
+          time--;
+          if(time <= 0){
+            location.reload();
+          }else{
+            timeNovoJogo.innerHTML = `Próxima corrida irá começar em ${time} segundos`;
+          }
+        }, 1000);
+
+        document.getElementById('container-jogo').style.display = 'none';
+        document.getElementById('container-ganhador').style.display = 'flex';
+      });
+
+      socket.on("disconnect", (reason) => {
+        let jogadoresAntigos = document.querySelectorAll(".row");
+        if (jogadoresAntigos) {
+          jogadoresAntigos.forEach(function (jogador) {
+            jogador.remove();
+          });
+        }
+      });
+      
+      socket.on("broadcasting", (msg) => {
+        if(msg.type == 'contagemInicioCorrida'){
+          document.getElementById('container-home').style.display = 'none';
+          document.getElementById('container-jogo').style.display = 'flex';
+        }
+      });
+
+    </script>
+  </body>
+</html>
